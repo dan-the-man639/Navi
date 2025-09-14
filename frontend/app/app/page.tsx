@@ -90,49 +90,80 @@ export default function TaskGameInterface() {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
   const [points, setPoints] = useState(2847); // Starting points from the existing UI
   const [isPointsAnimating, setIsPointsAnimating] = useState(false);
-  // Screen recording state
-  const screenRecordingRef = useRef<HTMLVideoElement | null>(null);
-  const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
-  const [displayMedia, setDisplayMedia] = useState<MediaStreamTrack | null>(null);
-  const [recordedUrl, setRecordedUrl] = useState<string>("");
-  const [screenRecordingChunks, setScreenRecordingChunks] = useState<Blob[]>([]);
+  
+  // Task-specific recording state
+  const [taskRecordings, setTaskRecordings] = useState<{
+    [taskId: string]: {
+      isRecording: boolean;
+      recorder: MediaRecorder | null;
+      displayMedia: MediaStreamTrack | null;
+      recordedUrl: string;
+      chunks: Blob[];
+    }
+  }>({});
+  
+  // Screen recording refs for each task
+  const screenRecordingRefs = useRef<{[taskId: string]: HTMLVideoElement | null}>({});
 
-  // Start screen recording
-  const startScreenRecording = async () => {
+  // Start screen recording for a specific task
+  const startScreenRecording = async (taskId: string) => {
     const stream = await navigator.mediaDevices.getDisplayMedia({
       audio: true, video: true
     });
     const mediaRecorder = new window.MediaRecorder(stream);
-    setRecorder(mediaRecorder);
     const videoTrack = stream.getVideoTracks()[0];
-    setDisplayMedia(videoTrack);
     const chunks: Blob[] = [];
+    
     mediaRecorder.ondataavailable = (e: BlobEvent) => {
       if (e.data.size > 0) {
         chunks.push(e.data);
       }
     };
+    
     mediaRecorder.onstop = () => {
       const blob = new Blob(chunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
-      setRecordedUrl(url);
-      if (screenRecordingRef.current) {
-        screenRecordingRef.current.src = url;
+      
+      setTaskRecordings(prev => ({
+        ...prev,
+        [taskId]: {
+          ...prev[taskId],
+          recordedUrl: url,
+          isRecording: false,
+          recorder: null,
+          displayMedia: null,
+          chunks: []
+        }
+      }));
+      
+      if (screenRecordingRefs.current[taskId]) {
+        screenRecordingRefs.current[taskId]!.src = url;
       }
+      
       if (videoTrack) {
         videoTrack.stop();
       }
     };
-    setScreenRecordingChunks(chunks);
+    
+    setTaskRecordings(prev => ({
+      ...prev,
+      [taskId]: {
+        isRecording: true,
+        recorder: mediaRecorder,
+        displayMedia: videoTrack,
+        recordedUrl: prev[taskId]?.recordedUrl || "",
+        chunks: chunks
+      }
+    }));
+    
     mediaRecorder.start();
-    setIsRecording(true);
   };
 
-  // Stop screen recording
-  const stopScreenRecording = () => {
-    if (recorder) {
-      recorder.stop();
-      setIsRecording(false);
+  // Stop screen recording for a specific task
+  const stopScreenRecording = (taskId: string) => {
+    const taskRecording = taskRecordings[taskId];
+    if (taskRecording?.recorder) {
+      taskRecording.recorder.stop();
     }
   };
 
@@ -444,18 +475,18 @@ export default function TaskGameInterface() {
                         $1.80
                       </span>
                     </div>
-                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
+                    <Button className="w-full" size="sm" onClick={() => startScreenRecording('amazon')}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
-                    {isRecording && (
-                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                    {taskRecordings['amazon']?.isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={() => stopScreenRecording('amazon')}>
                         <Square className="h-4 w-4 mr-2" />
                         Stop Recording
                       </Button>
                     )}
-                    {recordedUrl && (
-                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    {taskRecordings['amazon']?.recordedUrl && (
+                      <video ref={el => { screenRecordingRefs.current['amazon'] = el; }} src={taskRecordings['amazon']?.recordedUrl} height={200} width={350} controls className="mt-2" />
                     )}
                   </CardContent>
                 </Card>
@@ -487,18 +518,18 @@ export default function TaskGameInterface() {
                         $3.50
                       </span>
                     </div>
-                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
+                    <Button className="w-full" size="sm" onClick={() => startScreenRecording('research')}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
-                    {isRecording && (
-                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                    {taskRecordings['research']?.isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={() => stopScreenRecording('research')}>
                         <Square className="h-4 w-4 mr-2" />
                         Stop Recording
                       </Button>
                     )}
-                    {recordedUrl && (
-                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    {taskRecordings['research']?.recordedUrl && (
+                      <video ref={el => { screenRecordingRefs.current['research'] = el; }} src={taskRecordings['research']?.recordedUrl} height={200} width={350} controls className="mt-2" />
                     )}
                   </CardContent>
                 </Card>
@@ -529,18 +560,18 @@ export default function TaskGameInterface() {
                         $1.20
                       </span>
                     </div>
-                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
+                    <Button className="w-full" size="sm" onClick={() => startScreenRecording('wikipedia')}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
-                    {isRecording && (
-                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                    {taskRecordings['wikipedia']?.isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={() => stopScreenRecording('wikipedia')}>
                         <Square className="h-4 w-4 mr-2" />
                         Stop Recording
                       </Button>
                     )}
-                    {recordedUrl && (
-                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    {taskRecordings['wikipedia']?.recordedUrl && (
+                      <video ref={el => { screenRecordingRefs.current['wikipedia'] = el; }} src={taskRecordings['wikipedia']?.recordedUrl} height={200} width={350} controls className="mt-2" />
                     )}
                   </CardContent>
                 </Card>
@@ -571,18 +602,18 @@ export default function TaskGameInterface() {
                         $2.80
                       </span>
                     </div>
-                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
+                    <Button className="w-full" size="sm" onClick={() => startScreenRecording('finance')}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
-                    {isRecording && (
-                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                    {taskRecordings['finance']?.isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={() => stopScreenRecording('finance')}>
                         <Square className="h-4 w-4 mr-2" />
                         Stop Recording
                       </Button>
                     )}
-                    {recordedUrl && (
-                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    {taskRecordings['finance']?.recordedUrl && (
+                      <video ref={el => { screenRecordingRefs.current['finance'] = el; }} src={taskRecordings['finance']?.recordedUrl} height={200} width={350} controls className="mt-2" />
                     )}
                   </CardContent>
                 </Card>
