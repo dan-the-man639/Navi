@@ -276,7 +276,11 @@ export default function NaviLandingPage() {
       >
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
-            <div className="text-2xl font-light text-gray-900 drop-shadow-lg">NAVI</div>
+            
+          <div className="flex items-center gap-2">
+              <Image src="/Favicon.png" alt="Navi" width={25} height={25} />
+              <h3 className="text-xl font-light text-gray-900 ">NAVI</h3>
+              </div>
             <nav className="hidden md:flex items-center space-x-8">
               <button
                 onClick={() => scrollToSection("products")}
@@ -468,7 +472,10 @@ export default function NaviLandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
-              <h3 className="text-xl font-light text-gray-900 mb-4">NAVI</h3>
+              <div className="flex items-center gap-2 mb-4">
+              <Image src="/Favicon.png" alt="Navi" width={25} height={25} />
+              <h3 className="text-xl font-light text-gray-900 ">NAVI</h3>
+              </div>
               <p className="text-gray-600 text-sm font-light leading-relaxed">
                 Powering the next generation of computer-use AI with high-quality datasets.
               </p>

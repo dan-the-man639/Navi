@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description:
     "Level up computer-use data collection. Navi makes it fun to generate the datasets that power tomorrow's computer-use agents.",
   generator: "v0.app",
+  icons: {
+    icon: "/Favicon.png",
+    shortcut: "/Favicon.png",
+    apple: "/Favicon.png",
+  },
 }
 
 export default function RootLayout({
@@ -20,6 +25,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/Favicon.png" />
+        <link rel="shortcut icon" href="/Favicon.png" />
+        <link rel="apple-touch-icon" href="/Favicon.png" />
+      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
