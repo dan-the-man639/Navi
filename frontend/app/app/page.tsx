@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import {
   Trophy,
   Target,
@@ -252,10 +253,11 @@ export default function TaskGameInterface() {
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Target className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Navi</h1>
-          </div>
+          
+        <div className="flex items-center gap-2">
+              <Image src="/Favicon.png" alt="Navi" width={25} height={25} />
+              <h3 className="text-xl font-light text-gray-900 ">NAVI</h3>
+              </div>
 
           <nav className="hidden md:flex items-center gap-6">
             <a

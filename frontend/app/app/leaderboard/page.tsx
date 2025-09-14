@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Trophy, Target, Eye, Flag, TrendingUp, Calendar, Award, ChevronLeft } from "lucide-react"
+import Image from "next/image"
 
 export default function LeaderboardPage() {
   return (
@@ -19,8 +20,8 @@ export default function LeaderboardPage() {
               </a>
             </Button>
             <div className="flex items-center gap-2">
-              <Target className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-foreground">Navi Leaderboard</h1>
+              <Image src="/Favicon.png" alt="Navi" width={25} height={25} />
+              <h1 className="text-2xl font-bold text-foreground">Leaderboard</h1>
             </div>
           </div>
 

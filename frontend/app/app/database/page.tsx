@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
+import Image from "next/image"
 import {
   Target,
   Clock,
@@ -36,7 +37,7 @@ export default function DatabasePage() {
               </a>
             </Button>
             <div className="flex items-center gap-2">
-              <Target className="h-8 w-8 text-primary" />
+              <Image src="/Favicon.png" alt="Navi" width={25} height={25} />
               <h1 className="text-2xl font-bold text-foreground">Task Database</h1>
             </div>
           </div>
