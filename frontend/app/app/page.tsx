@@ -78,7 +78,7 @@ import {
   PlayCircle,
   StopCircle,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/hooks/use-toast";
@@ -90,6 +90,51 @@ export default function TaskGameInterface() {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
   const [points, setPoints] = useState(2847); // Starting points from the existing UI
   const [isPointsAnimating, setIsPointsAnimating] = useState(false);
+  // Screen recording state
+  const screenRecordingRef = useRef<HTMLVideoElement | null>(null);
+  const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
+  const [displayMedia, setDisplayMedia] = useState<MediaStreamTrack | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string>("");
+  const [screenRecordingChunks, setScreenRecordingChunks] = useState<Blob[]>([]);
+
+  // Start screen recording
+  const startScreenRecording = async () => {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true, video: true
+    });
+    const mediaRecorder = new window.MediaRecorder(stream);
+    setRecorder(mediaRecorder);
+    const videoTrack = stream.getVideoTracks()[0];
+    setDisplayMedia(videoTrack);
+    const chunks: Blob[] = [];
+    mediaRecorder.ondataavailable = (e: BlobEvent) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
+      }
+    };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      setRecordedUrl(url);
+      if (screenRecordingRef.current) {
+        screenRecordingRef.current.src = url;
+      }
+      if (videoTrack) {
+        videoTrack.stop();
+      }
+    };
+    setScreenRecordingChunks(chunks);
+    mediaRecorder.start();
+    setIsRecording(true);
+  };
+
+  // Stop screen recording
+  const stopScreenRecording = () => {
+    if (recorder) {
+      recorder.stop();
+      setIsRecording(false);
+    }
+  };
 
   useEffect(() => {
     let recordingInterval: NodeJS.Timeout;
@@ -121,7 +166,8 @@ export default function TaskGameInterface() {
     };
   }, [isRecording]);
 
-  const toggleRecording = () => {
+  // Toggle challenge timer recording (not screen recording)
+  const toggleChallengeRecording = () => {
     if (!isRecording) {
       setRecordingTime(0);
       setTimeLeft(15 * 60); // Reset to 15 minutes
@@ -345,7 +391,7 @@ export default function TaskGameInterface() {
                         ? "bg-red-50 hover:bg-red-100 text-red-600"
                         : "bg-green-50 hover:bg-green-100 text-green-600"
                     }
-                    onClick={toggleRecording}
+                    onClick={toggleChallengeRecording}
                   >
                     {isRecording ? (
                       <>
@@ -398,10 +444,19 @@ export default function TaskGameInterface() {
                         $1.80
                       </span>
                     </div>
-                    <Button className="w-full" size="sm">
+                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
+                    {isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                        <Square className="h-4 w-4 mr-2" />
+                        Stop Recording
+                      </Button>
+                    )}
+                    {recordedUrl && (
+                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -432,10 +487,19 @@ export default function TaskGameInterface() {
                         $3.50
                       </span>
                     </div>
-                    <Button className="w-full" size="sm">
+                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
+                    {isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                        <Square className="h-4 w-4 mr-2" />
+                        Stop Recording
+                      </Button>
+                    )}
+                    {recordedUrl && (
+                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -465,10 +529,19 @@ export default function TaskGameInterface() {
                         $1.20
                       </span>
                     </div>
-                    <Button className="w-full" size="sm">
+                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
+                    {isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                        <Square className="h-4 w-4 mr-2" />
+                        Stop Recording
+                      </Button>
+                    )}
+                    {recordedUrl && (
+                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -498,10 +571,19 @@ export default function TaskGameInterface() {
                         $2.80
                       </span>
                     </div>
-                    <Button className="w-full" size="sm">
+                    <Button className="w-full" size="sm" onClick={startScreenRecording}>
                       <PlayCircle className="h-4 w-4 mr-2" />
                       Start & Record
                     </Button>
+                    {isRecording && (
+                      <Button className="w-full mt-2 bg-red-600 hover:bg-red-700" size="sm" onClick={stopScreenRecording}>
+                        <Square className="h-4 w-4 mr-2" />
+                        Stop Recording
+                      </Button>
+                    )}
+                    {recordedUrl && (
+                      <video ref={screenRecordingRef} src={recordedUrl} height={200} width={350} controls className="mt-2" />
+                    )}
                   </CardContent>
                 </Card>
               </div>
