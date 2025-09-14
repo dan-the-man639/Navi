@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, Sphere, Box, Environment } from "@react-three/drei"
 import { Group, Mesh } from "three"
+import Image from "next/image"
 
 function MouseTrackingVisualization() {
   const groupRef = useRef<Group>(null)
@@ -296,7 +297,7 @@ export default function NaviLandingPage() {
                 About
               </button>
               <Button className="bg-[#FF8C42] text-white hover:bg-[#FF8C42]/90 rounded-md px-4 py-2 font-normal text-sm shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300">
-                Continue
+                Book a Demo
               </Button>
             </nav>
           </div>
@@ -411,15 +412,8 @@ export default function NaviLandingPage() {
                 </p>
               </div>
             </div>
-            <div className="aspect-[4/5] md:aspect-[4/3] rounded-lg overflow-hidden bg-[#030D13]">
-              <Canvas camera={{ position: [0, 0, 6], fov: 60 }}>
-                <Environment preset="night" />
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={0.8} />
-                <pointLight position={[-10, -10, -10]} intensity={0.4} />
-                <DataVisualization />
-                <OrbitControls enableZoom={false} enablePan={false} />
-              </Canvas>
+            <div className="rounded-lg overflow-hidden border-2 border-orange-400">
+              <Image src="/Database.png" alt="Use Our Data" width={1000} height={1000} />
             </div>
           </div>
         </div>
@@ -427,36 +421,26 @@ export default function NaviLandingPage() {
 
       {/* Use Our Data */}
       <section className="py-52 px-4 md:px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto flex flex-col items-center">
           <h2 className="text-4xl md:text-5xl font-thin text-gray-900 text-center mb-16 drop-shadow-lg">Use Our Data</h2>
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 shadow-lg shadow-gray-400/20">
-              <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-                <Environment preset="night" />
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={0.8} />
-                <pointLight position={[-10, -10, -10]} intensity={0.4} />
-                <ModelTrainingVisualization />
-                <OrbitControls enableZoom={false} enablePan={false} />
-              </Canvas>
-            </div>
+          <div className="w-[50vw]">
             <div className="space-y-8">
               <div className="pb-8 border-b border-border">
                 <h3 className="text-2xl font-light text-gray-900 mb-3">Fine-tune Models</h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  Fine-tune models with Reinforcement Learning from Human Feedback (RLHF).
+                Refine models with Reinforcement Learning from Human Feedback (RLHF) using curated interaction data, helping them adapt smoothly to real behavior and uncommon edge cases.
                 </p>
               </div>
               <div className="pb-8 border-b border-border">
                 <h3 className="text-2xl font-light text-gray-900 mb-3">Train</h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  Train agents to navigate apps and websites naturally.
+                Teach agents to navigate apps, forms, and websites through authentic workflows, learning clicks, scrolls, and shortcuts for natural, reliable performance.
                 </p>
               </div>
               <div>
                 <h3 className="text-2xl font-light text-gray-900 mb-3">Benchmark</h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  Benchmark automation systems against authentic behavior.
+                Evaluate automation systems with genuine user sessions, measuring accuracy, speed, and resilience across varied tasks to ensure dependable results.
                 </p>
               </div>
             </div>
