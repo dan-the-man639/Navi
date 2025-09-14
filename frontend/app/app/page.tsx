@@ -103,8 +103,24 @@ export default function TaskGameInterface() {
     }
   }>({});
   
+  // Main challenge recording state (separate from tasks)
+  const [mainChallengeRecording, setMainChallengeRecording] = useState<{
+    isRecording: boolean;
+    recorder: MediaRecorder | null;
+    displayMedia: MediaStreamTrack | null;
+    recordedUrl: string;
+    chunks: Blob[];
+  }>({
+    isRecording: false,
+    recorder: null,
+    displayMedia: null,
+    recordedUrl: "",
+    chunks: []
+  });
+  
   // Screen recording refs for each task
   const screenRecordingRefs = useRef<{[taskId: string]: HTMLVideoElement | null}>({});
+  const mainChallengeRecordingRef = useRef<HTMLVideoElement | null>(null);
 
   // Start screen recording for a specific task
   const startScreenRecording = async (taskId: string) => {
@@ -165,6 +181,61 @@ export default function TaskGameInterface() {
     const taskRecording = taskRecordings[taskId];
     if (taskRecording?.recorder) {
       taskRecording.recorder.stop();
+    }
+  };
+
+  // Start screen recording for main challenge
+  const startMainChallengeRecording = async () => {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      audio: true, video: true
+    });
+    const mediaRecorder = new window.MediaRecorder(stream);
+    const videoTrack = stream.getVideoTracks()[0];
+    const chunks: Blob[] = [];
+    
+    mediaRecorder.ondataavailable = (e: BlobEvent) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
+      }
+    };
+    
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      
+      setMainChallengeRecording(prev => ({
+        ...prev,
+        recordedUrl: url,
+        isRecording: false,
+        recorder: null,
+        displayMedia: null,
+        chunks: []
+      }));
+      
+      if (mainChallengeRecordingRef.current) {
+        mainChallengeRecordingRef.current.src = url;
+      }
+      
+      if (videoTrack) {
+        videoTrack.stop();
+      }
+    };
+    
+    setMainChallengeRecording(prev => ({
+      ...prev,
+      isRecording: true,
+      recorder: mediaRecorder,
+      displayMedia: videoTrack,
+      chunks: chunks
+    }));
+    
+    mediaRecorder.start();
+  };
+
+  // Stop screen recording for main challenge
+  const stopMainChallengeRecording = () => {
+    if (mainChallengeRecording.recorder) {
+      mainChallengeRecording.recorder.stop();
     }
   };
 
@@ -356,17 +427,17 @@ export default function TaskGameInterface() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
-                    {isRecording && (
+                    {mainChallengeRecording.isRecording && (
                       <Video className="h-5 w-5 text-red-500 animate-pulse" />
                     )}
-                    {isRecording ? "Recording Active" : "Challenge Ready"}
+                    {mainChallengeRecording.isRecording ? "Recording Active" : "Challenge Ready"}
                   </CardTitle>
                   <CardDescription>
                     Find a specific Wikipedia page
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isRecording && (
+                  {mainChallengeRecording.isRecording && (
                     <Badge
                       variant="secondary"
                       className="bg-red-100 text-red-700"
@@ -420,13 +491,13 @@ export default function TaskGameInterface() {
                   <Button
                     variant="outline"
                     className={
-                      isRecording
+                      mainChallengeRecording.isRecording
                         ? "bg-red-50 hover:bg-red-100 text-red-600"
                         : "bg-green-50 hover:bg-green-100 text-green-600"
                     }
-                    onClick={toggleChallengeRecording}
+                    onClick={mainChallengeRecording.isRecording ? stopMainChallengeRecording : startMainChallengeRecording}
                   >
-                    {isRecording ? (
+                    {mainChallengeRecording.isRecording ? (
                       <>
                         <Square className="h-4 w-4 mr-2" />
                         Stop Recording
@@ -439,6 +510,18 @@ export default function TaskGameInterface() {
                     )}
                   </Button>
                 </div>
+                {mainChallengeRecording.recordedUrl && (
+                  <div className="mt-4">
+                    <video 
+                      ref={el => { mainChallengeRecordingRef.current = el; }} 
+                      src={mainChallengeRecording.recordedUrl} 
+                      height={200} 
+                      width={350} 
+                      controls 
+                      className="w-full max-w-md rounded-lg border" 
+                    />
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
